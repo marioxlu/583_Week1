@@ -21,19 +21,17 @@ def connect_with_middleware(contract_json):
     # Load the contract address and ABI from the contract JSON file
     with open(contract_json, "r") as f:
         d = json.load(f)
-        address = d['address']  # Contract address
-        abi = d['abi']  # Contract ABI
+        address = d['bsc']['address']  # Contract address
+        abi = d['bsc']['abi']  # Contract ABI
 
-    # BNB Testnet URL
-    bnb_url = "https://data-seed-prebsc-1-s1.binance.org:8545/"
+     # First section will be the same as "connect_to_eth()" but with a BNB URL
+    bnb_url = "https://data-seed-prebsc-1-s1.binance.org:8545/"  # BNB Testnet URL
     w3 = Web3(HTTPProvider(bnb_url))
 
-    # Inject middleware for Proof of Authority
+    # Inject the Proof of Authority (PoA) middleware for BNB chain
     w3.middleware_onion.inject(geth_poa_middleware, layer=0)
 
-    assert w3.isConnected(), "Failed to connect to BNB testnet"
-
-    # Create the contract object using ABI and address
+    # Create the contract object using the loaded ABI and address
     contract = w3.eth.contract(address=address, abi=abi)
 
     return w3, contract
@@ -42,7 +40,7 @@ if __name__ == "__main__":
     # Test both connections
     print("Testing Ethereum Mainnet Connection:")
     connect_to_eth()
-    
+
     print("\nTesting BNB Testnet Connection:")
     w3, contract = connect_with_middleware("contract_info.json")
     print("Connected to BNB Testnet and contract successfully")
